@@ -9,10 +9,10 @@ def lambda_handler(event, context):
         print("Received event:", json.dumps(event))
         
         # Cognitoで認証されたユーザー情報を取得
-        user_info = None
-        if 'requestContext' in event and 'authorizer' in event['requestContext']:
-            user_info = event['requestContext']['authorizer']['claims']
-            print(f"Authenticated user: {user_info.get('email') or user_info.get('cognito:username')}")
+        #user_info = None
+        #if 'requestContext' in event and 'authorizer' in event['requestContext']:
+            #user_info = event['requestContext']['authorizer']['claims']
+            #print(f"Authenticated user: {user_info.get('email') or user_info.get('cognito:username')}")
         
         # リクエストボディの解析
         body = json.loads(event['body'])
@@ -24,7 +24,7 @@ def lambda_handler(event, context):
         request_payload = {
   "prompt": message,
   "max_new_tokens": 512,
-  "do_sample": true,
+  "do_sample": True,
   "temperature": 0.7,
   "top_p": 0.9
 }
