@@ -2,7 +2,7 @@
 import json
 import urllib.request
 
-FASTAPI_URL = "https://5a97-34-143-214-180.ngrok-free.app"
+FASTAPI_URL = "https://aba1-34-143-214-180.ngrok-free.app"
 
 def lambda_handler(event, context):
     try:
@@ -22,8 +22,13 @@ def lambda_handler(event, context):
 
         # FastAPIに送る形式
         request_payload = {
-    "message": message
+  "prompt": message,
+  "max_new_tokens": 512,
+  "do_sample": true,
+  "temperature": 0.7,
+  "top_p": 0.9
 }
+    
         # POST リクエストを作成
         req = urllib.request.Request(
             url=FASTAPI_URL,
@@ -39,7 +44,7 @@ def lambda_handler(event, context):
         print("FastAPI response:", response_data)
 
         # 応答からテキストを抽出
-        assistant_response = response_data["response"]
+        assistant_response = response_data["generated_text"]
 
         # クライアントに返す
         return {
