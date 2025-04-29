@@ -2,24 +2,16 @@
 import json
 import urllib.request
 
-FASTAPI_URL = "https://aba1-34-143-214-180.ngrok-free.app/generate"
+FASTAPI_URL = "https://6c4b-34-143-214-180.ngrok-free.app/"
 
 def lambda_handler(event, context):
     try:
         print("Received event:", json.dumps(event))
         
-        # Cognitoで認証されたユーザー情報を取得
-        #user_info = None
-        #if 'requestContext' in event and 'authorizer' in event['requestContext']:
-            #user_info = event['requestContext']['authorizer']['claims']
-            #print(f"Authenticated user: {user_info.get('email') or user_info.get('cognito:username')}")
-        
         # リクエストボディの解析
-        body = json.loads(event['body'])
-        message = body['message']
+    　　body = json.loads(event.get('body', '{}'))
+   　　 message = body.get('message', '')
         
-        print("Processing message:", message)
-
         # FastAPIに送る形式
         request_payload = {
   "prompt": message,
@@ -41,39 +33,16 @@ def lambda_handler(event, context):
         with urllib.request.urlopen(req) as res:
             response_data = json.loads(res.read().decode("utf-8"))
 
-        print("FastAPI response:", response_data)
-
         # 応答からテキストを抽出
         assistant_response = response_data["generated_text"]
 
-        # クライアントに返す
-        return {
-            "statusCode": 200,
-            "headers": {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
-                "Access-Control-Allow-Methods": "OPTIONS,POST"
-            },
-            "body": json.dumps({
-                "success": True,
-                "response": assistant_response
-            })
-        }
-
-    except Exception as error:
-        print("Error:", str(error))
-        return {
-            "statusCode": 500,
-            "headers": {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
-                "Access-Control-Allow-Methods": "OPTIONS,POST"
-            },
-            "body": json.dumps({
-                "success": False,
-                "error": str(error)
-            })
-        }
-        
+      
+   　　 # レスポンス返却
+    　　return {
+          "statusCode": 200,
+          "headers": {"Content-Type": "application/json"},
+          "body": json.dumps({
+              "success": True,
+              "response": assistant_response
+        })
+    }
