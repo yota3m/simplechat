@@ -2,7 +2,7 @@
 import json
 import urllib.request
 
-FASTAPI_URL = "https://aba1-34-143-214-180.ngrok-free.app"
+FASTAPI_URL = "https://aba1-34-143-214-180.ngrok-free.app/generate"
 
 def lambda_handler(event, context):
     try:
