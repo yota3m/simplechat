@@ -39,7 +39,7 @@ def lambda_handler(event, context):
         request_payload = {
             "prompt": message,
             "max_new_tokens": 512,
-            "do_sample": True,
+            "do_sample": true,
             "temperature": 0.7,
             "top_p": 0.9
         }
@@ -47,7 +47,7 @@ def lambda_handler(event, context):
         # POST リクエストを作成
         req = urllib.request.Request(
             url=FASTAPI_URL,
-            data=json.dumps(request_payload).encode('utf-8'),  # request_payloadをJSONとしてエンコード
+            data=json.dumps(request_payload).encode('utf-8'), 
             headers={"Content-Type": "application/json"},
             method="POST"
         )
@@ -57,7 +57,7 @@ def lambda_handler(event, context):
             response_data = json.loads(resp.read().decode("utf-8"))
 
         # 応答からテキストを抽出
-        assistant_response = response_data.get("generated_text", "No response text found")
+        assistant_response = response_data.get("generated_text")
 
         # レスポンス返却
         return {
