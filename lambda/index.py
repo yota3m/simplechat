@@ -1,17 +1,26 @@
+# lambda/index.py
 import json
-import urllib.request
 import os
 import boto3
+import urllib.request
+import re  # 正規表現モジュールをインポート
+from botocore.exceptions import ClientErrorimport json
+
+# Lambda コンテキストからリージョンを抽出する関数
+def extract_region_from_arn(arn):
+    # ARN 形式: arn:aws:lambda:region:account-id:function:function-name
+    match = re.search('arn:aws:lambda:([^:]+):', arn)
+    if match:
+        return match.group(1)
+    return "us-east-1"  # デフォルト値
+    
+# グローバル変数としてクライアントを初期化（初期値）
+bedrock_client = None
 
 # モデルID
 MODEL_ID = os.environ.get("MODEL_ID", "us.amazon.nova-lite-v1:0")
 
 FASTAPI_URL = "https://6c4b-34-143-214-180.ngrok-free.app/generate"
-bedrock_client = None  # ここで初期化
-
-def extract_region_from_arn(arn):
-    # ARNからリージョンを抽出する簡易関数（例）
-    return arn.split(":")[3]
 
 def lambda_handler(event, context):
     try:
@@ -29,11 +38,14 @@ def lambda_handler(event, context):
         if 'requestContext' in event and 'authorizer' in event['requestContext']:
             user_info = event['requestContext']['authorizer']['claims']
             print(f"Authenticated user: {user_info.get('email') or user_info.get('cognito:username')}")
-            
+        
         # リクエストボディの解析
         body = json.loads(event['body'])
         message = body['message']
         conversation_history = body.get('conversationHistory', [])
+        
+        print("Processing message:", message)
+        print("Using model:", MODEL_ID)
         
         # FastAPIに送る形式
         request_payload = {
@@ -59,20 +71,34 @@ def lambda_handler(event, context):
         # 応答からテキストを抽出
         assistant_response = response_data.get("generated_text")
 
-        # レスポンス返却
+        # 成功レスポンスの返却
         return {
             "statusCode": 200,
-            "headers": {"Content-Type": "application/json"},
+            "headers": {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+                "Access-Control-Allow-Methods": "OPTIONS,POST"
+            },
             "body": json.dumps({
                 "success": True,
-                "response": assistant_response
+                "response": assistant_response,
             })
         }
-
-    except Exception as e:
-        # エラーハンドリング
-        print(f"Error occurred: {str(e)}")
+        
+    except Exception as error:
+        print("Error:", str(error))
+        
         return {
             "statusCode": 500,
-            "body": json.dumps({"success": False, "error": str(e)})
+            "headers": {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+                "Access-Control-Allow-Methods": "OPTIONS,POST"
+            },
+            "body": json.dumps({
+                "success": False,
+                "error": str(error)
+            })
         }
