@@ -3,8 +3,9 @@ import json
 import os
 import boto3
 import urllib.request
-import re  # 正規表現モジュールをインポート
+import re
 from botocore.exceptions import ClientError
+
 
 # Lambda コンテキストからリージョンを抽出する関数
 def extract_region_from_arn(arn):
