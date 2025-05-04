@@ -20,7 +20,7 @@ bedrock_client = None
 # モデルID
 MODEL_ID = os.environ.get("MODEL_ID", "us.amazon.nova-lite-v1:0")
 
-FASTAPI_URL = "https://6c4b-34-143-214-180.ngrok-free.app/generate"
+FASTAPI_URL = "https://00c9-34-145-96-108.ngrok-free.app/generate"
 
 def lambda_handler(event, context):
     try:
@@ -42,7 +42,6 @@ def lambda_handler(event, context):
         # リクエストボディの解析
         body = json.loads(event['body'])
         message = body['message']
-        conversation_history = body.get('conversationHistory', [])
         
         print("Processing message:", message)
         print("Using model:", MODEL_ID)
@@ -51,7 +50,7 @@ def lambda_handler(event, context):
         request_payload = {
             "prompt": message,
             "max_new_tokens": 512,
-            "do_sample": true,
+            "do_sample": True,
             "temperature": 0.7,
             "top_p": 0.9
         }
